@@ -40,7 +40,7 @@ class UserService {
             }
         });
     }
-    Login(email, password, accessType) {
+    Login(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             {
                 try {
@@ -63,3 +63,4 @@ class UserService {
         });
     }
 }
+exports.default = UserService;
