@@ -36,7 +36,6 @@ class UserService{
 
     public async Login(email: string, 
         password: string,
-        accessType: string
     ): Promise<{token: string; profilePicture: string; name: string; email: string} | Error>{
         {
             try {
@@ -64,3 +63,5 @@ class UserService{
 
 
 }
+
+export default UserService;
