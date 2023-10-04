@@ -83,4 +83,24 @@ class BlogService {
             }
         });
     }
+    UpdateBlog(id, title, content, blogPictureUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const blogFromDb = yield this.blog.findById(id);
+                if (blogFromDb === null) {
+                    throw new Error("Not found with the blog Id provided.");
+                }
+                const createBlog = yield this.blog.updateOne({
+                    title,
+                    content,
+                    blogPictureUrl
+                });
+                return "Updated successfully";
+            }
+            catch (error) {
+                throw new Error('Unable to update blog');
+            }
+        });
+    }
 }
+exports.default = BlogService;

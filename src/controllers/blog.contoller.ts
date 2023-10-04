@@ -1,14 +1,135 @@
 import IController from "../interfaces/controller.interface";
 import { Router, Request, Response, NextFunction } from 'express';
+import HttpException from '../middleware/http.exception';
+import authenticated from '../middleware/authenticated.middleware'
+import exceptionMiddleware from '../middleware/exception.middleware';
+import BlogService from '../service/blog.service';
+import validator from '../validator/blog.validator';
 
 class BlogsController implements IController {
-
     public path = '/';
     public router = Router();
+    private BlogService = new BlogService();
 
     constructor(){
-       // this.initialiseRoutes();
+       this.initialiseRoutes();
     }
+
+    private initialiseRoutes(): void {
+        this.router.post(
+            `${this.path}/blog`,
+            exceptionMiddleware(validator.blog),
+            this.createBlog
+
+        );
+
+        this.router.put(
+            `${this.path}/blog`,
+            exceptionMiddleware(validator.blog),
+            this.updateBlog
+
+        );
+
+        this.router.delete(
+            `${this.path}/blog`,
+            this.DeleteBlog
+        );
+        
+        this.router.get(`${this.path}`, this.GetAllBlogs);
+
+        this.router.get(`${this.path}`, this.GetBlogById)
+    }
+
+    private createBlog = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const {_id, userId, content, title, blogPictureUrl} = req.body;
+
+            const newUser = await this.BlogService.createBlog(
+                _id,
+                userId,
+                content,
+                title,
+                blogPictureUrl,
+            );
+            res.status(201).json({userId: newUser});
+
+        } catch (error:any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+
+    private GetAllBlogs = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const blogs = await this.BlogService.getAllBlogs()
+            res.status(200).json({blogs});
+
+        } catch (error:any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+    private GetBlogById = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const {blogId} = req.body;
+            const blogs = await this.BlogService.getBlogById(blogId)
+            res.status(200).json({blogs});
+
+        } catch (error:any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+    private updateBlog = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const {blogId, content, title, blogPictureUrl} = req.body;
+
+            const newUser = await this.BlogService.UpdateBlog(
+                blogId,
+                content,
+                title,
+                blogPictureUrl,
+            );
+            res.status(201).json({userId: newUser});
+
+        } catch (error:any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+    
+    private DeleteBlog = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const {blogId} = req.body;
+            const blogs = await this.BlogService.deleteBlogById(blogId)
+            res.status(200).json({blogs});
+
+        } catch (error:any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+
 }
+
 
 export default BlogsController;

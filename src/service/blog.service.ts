@@ -81,4 +81,34 @@ class BlogService{
             }
     
 
+            public async UpdateBlog(
+                id: string,
+                title: string,
+                content: string,
+                blogPictureUrl: string
+            ): Promise<string | Error>
+            {
+                try {
+
+                    const blogFromDb = await this.blog.findById(id)
+                    if(blogFromDb === null){
+                        throw new Error("Not found with the blog Id provided.");
+                    }
+
+                    const createBlog = await this.blog.updateOne({
+                        title,
+                        content,
+                        blogPictureUrl
+                    })
+        
+                    return "Updated successfully";
+        
+                } catch (error) {
+                    throw new Error('Unable to update blog');
+                }
+            }
+        
+
 }
+
+export default BlogService;
