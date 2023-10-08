@@ -14,12 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = __importDefault(require("../models/user.model"));
 const jwtToken_1 = __importDefault(require("../utils/jwtToken"));
-const mongodb_1 = require("mongodb");
 class UserService {
     constructor() {
         this.user = user_model_1.default;
     }
-    register(_id, name, email, profilePicture, password) {
+    register(
+    // _id: ObjectId,
+    name, email, profilePicture, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const existingUser = yield this.user.findOne({ email });
@@ -27,12 +28,13 @@ class UserService {
                     throw new Error("User already exists.");
                 }
                 const newUser = yield this.user.create({
-                    _id: new mongodb_1.ObjectId(),
+                    // _id: new ObjectId(),
                     name,
                     email,
-                    profilePicture
+                    profilePicture,
+                    password
                 });
-                const accessToken = jwtToken_1.default.createToken(newUser);
+                //const accessToken = jwtToken.createToken(newUser)
                 return newUser._id.toHexString();
             }
             catch (error) {

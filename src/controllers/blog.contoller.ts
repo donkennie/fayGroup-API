@@ -7,7 +7,7 @@ import BlogService from '../service/blog.service';
 import validator from '../validator/blog.validator';
 
 class BlogsController implements IController {
-    public path = '/';
+    public path = '/blog';
     public router = Router();
     private BlogService = new BlogService();
 
@@ -17,27 +17,27 @@ class BlogsController implements IController {
 
     private initialiseRoutes(): void {
         this.router.post(
-            `${this.path}/blog`,
+            `${this.path}/create-blog`,
             exceptionMiddleware(validator.blog),
             this.createBlog
 
         );
 
         this.router.put(
-            `${this.path}/blog`,
+            `${this.path}/update-blog`,
             exceptionMiddleware(validator.blog),
             this.updateBlog
 
         );
 
         this.router.delete(
-            `${this.path}/blog`,
+            `${this.path}/delete-blog`,
             this.DeleteBlog
         );
         
-        this.router.get(`${this.path}`, this.GetAllBlogs);
+        this.router.get(`${this.path}/get-blogs`, this.GetAllBlogs);
 
-        this.router.get(`${this.path}`, this.GetBlogById)
+        this.router.get(`${this.path}/get-blog`, this.GetBlogById)
     }
 
     private createBlog = async(

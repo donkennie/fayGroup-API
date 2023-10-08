@@ -20,13 +20,15 @@ const exception_middleware_1 = __importDefault(require("../middleware/exception.
 const user_validator_1 = __importDefault(require("../validator/user.validator"));
 class UserController {
     constructor() {
-        this.path = '/register';
+        this.path = '/users';
         this.router = (0, express_1.Router)();
         this.UserService = new user_service_1.default();
         this.register = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { _id, name, email, password, profilePicture } = req.body;
-                const newUser = yield this.UserService.register(_id, name, email, password, profilePicture);
+                const { name, email, password, profilePicture } = req.body;
+                const newUser = yield this.UserService.register(
+                // _id,
+                name, email, password, profilePicture);
                 res.status(201).json({ userId: newUser });
             }
             catch (error) {
@@ -38,7 +40,7 @@ class UserController {
                 const { email, password } = req.body;
                 const userLogin = yield this.UserService.Login(email, password);
                 if (!userLogin)
-                    res.status(400).json({ success: false, message: 'Wrong Credentials' });
+                    res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 res.status(201).json(Object.assign({}, userLogin));
             }
             catch (error) {
@@ -54,8 +56,8 @@ class UserController {
         this.initialiseRoutes();
     }
     initialiseRoutes() {
-        this.router.post(`${this.path}/users`, (0, exception_middleware_1.default)(user_validator_1.default.register), this.register);
-        this.router.post(`/sign-in`, (0, exception_middleware_1.default)(user_validator_1.default.login), this.login);
+        this.router.post(`${this.path}/register`, (0, exception_middleware_1.default)(user_validator_1.default.register), this.register);
+        this.router.post(`${this.path}/sign-in`, (0, exception_middleware_1.default)(user_validator_1.default.login), this.login);
         this.router.get(`${this.path}`, authenticated_middleware_1.default, this.getUser);
     }
 }

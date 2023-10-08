@@ -7,7 +7,7 @@ import exceptionMiddleware from '../middleware/exception.middleware';
 import validator from '../validator/user.validator';
 
 class UserController implements IController {
-    public path = '/register';
+    public path = '/users';
     public router = Router();
     private UserService = new UserService();
 
@@ -17,14 +17,14 @@ class UserController implements IController {
 
     private initialiseRoutes(): void {
         this.router.post(
-            `${this.path}/users`,
+            `${this.path}/register`,
             exceptionMiddleware(validator.register),
             this.register
 
         );
         
         this.router.post(
-            `/sign-in`,
+            `${this.path}/sign-in`,
             exceptionMiddleware(validator.login),
             this.login
         );
@@ -37,10 +37,10 @@ class UserController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {_id, name, email, password, profilePicture} = req.body;
+            const { name, email, password, profilePicture} = req.body;
 
             const newUser = await this.UserService.register(
-                _id,
+               // _id,
                 name,
                 email,
                 password,
@@ -65,7 +65,7 @@ class UserController implements IController {
                 const userLogin = await this.UserService.Login(email, password);
 
                 if(!userLogin) 
-                res.status(400).json({ success: false, message: 'Wrong Credentials' });
+                res.status(401).json({ success: false, message: 'Wrong Credentials' });
 
                 res.status(201).json({...userLogin});
             } catch (error:any) {

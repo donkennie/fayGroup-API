@@ -19,7 +19,7 @@ const blog_service_1 = __importDefault(require("../service/blog.service"));
 const blog_validator_1 = __importDefault(require("../validator/blog.validator"));
 class BlogsController {
     constructor() {
-        this.path = '/';
+        this.path = '/blog';
         this.router = (0, express_1.Router)();
         this.BlogService = new blog_service_1.default();
         this.createBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -74,11 +74,11 @@ class BlogsController {
         this.initialiseRoutes();
     }
     initialiseRoutes() {
-        this.router.post(`${this.path}/blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.createBlog);
-        this.router.put(`${this.path}/blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.updateBlog);
-        this.router.delete(`${this.path}/blog`, this.DeleteBlog);
-        this.router.get(`${this.path}`, this.GetAllBlogs);
-        this.router.get(`${this.path}`, this.GetBlogById);
+        this.router.post(`${this.path}/create-blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.createBlog);
+        this.router.put(`${this.path}/update-blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.updateBlog);
+        this.router.delete(`${this.path}/delete-blog`, this.DeleteBlog);
+        this.router.get(`${this.path}/get-blogs`, this.GetAllBlogs);
+        this.router.get(`${this.path}/get-blog`, this.GetBlogById);
     }
 }
 exports.default = BlogsController;
