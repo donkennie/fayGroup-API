@@ -7,7 +7,6 @@ class UserService{
     private user = UserModel;
 
     public async register(
-       // _id: ObjectId,
         name: string,
         email: string,
         profilePicture: string,
@@ -18,10 +17,8 @@ class UserService{
             if (existingUser != null){
                 throw new Error("User already exists.");
             }
-
             
             const newUser = await this.user.create({
-               // _id: new ObjectId(),
                 name,
                 email,
                 profilePicture,

@@ -17,16 +17,18 @@ const http_exception_1 = __importDefault(require("../middleware/http.exception")
 const exception_middleware_1 = __importDefault(require("../middleware/exception.middleware"));
 const blog_service_1 = __importDefault(require("../service/blog.service"));
 const blog_validator_1 = __importDefault(require("../validator/blog.validator"));
+const blog_model_1 = __importDefault(require("../models/blog.model"));
 class BlogsController {
     constructor() {
         this.path = '/blog';
         this.router = (0, express_1.Router)();
         this.BlogService = new blog_service_1.default();
+        this.blog = blog_model_1.default;
         this.createBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { _id, userId, content, title, blogPictureUrl } = req.body;
-                const newUser = yield this.BlogService.createBlog(_id, userId, content, title, blogPictureUrl);
-                res.status(201).json({ userId: newUser });
+                const { userId, content, title, blogPictureUrl } = req.body;
+                const blog = yield this.BlogService.createBlog(userId, content, title, blogPictureUrl);
+                res.status(201).json({ userId: blog });
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -43,9 +45,9 @@ class BlogsController {
         });
         this.GetBlogById = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { blogId } = req.body;
-                const blogs = yield this.BlogService.getBlogById(blogId);
-                res.status(200).json({ blogs });
+                const { blogId } = req.params;
+                const blog = yield this.BlogService.getBlogById(blogId);
+                res.status(200).json({ blog });
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -63,9 +65,12 @@ class BlogsController {
         });
         this.DeleteBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { blogId } = req.body;
-                const blogs = yield this.BlogService.deleteBlogById(blogId);
-                res.status(200).json({ blogs });
+                const { blogId } = req.params;
+                const blog = yield this.blog.findByIdAndDelete(blogId);
+                if (!blog) {
+                    throw new Error("Not found with the blog Id provided.");
+                }
+                res.status(200).json({ blog });
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -75,10 +80,10 @@ class BlogsController {
     }
     initialiseRoutes() {
         this.router.post(`${this.path}/create-blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.createBlog);
-        this.router.put(`${this.path}/update-blog`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.updateBlog);
-        this.router.delete(`${this.path}/delete-blog`, this.DeleteBlog);
+        this.router.put(`${this.path}/update-blog/:id`, (0, exception_middleware_1.default)(blog_validator_1.default.blog), this.updateBlog);
+        this.router.delete(`${this.path}/delete-blog/:id`, this.DeleteBlog);
         this.router.get(`${this.path}/get-blogs`, this.GetAllBlogs);
-        this.router.get(`${this.path}/get-blog`, this.GetBlogById);
+        this.router.get(`${this.path}/get-blog/:id`, this.GetBlogById);
     }
 }
 exports.default = BlogsController;

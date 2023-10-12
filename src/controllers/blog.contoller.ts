@@ -5,11 +5,13 @@ import authenticated from '../middleware/authenticated.middleware'
 import exceptionMiddleware from '../middleware/exception.middleware';
 import BlogService from '../service/blog.service';
 import validator from '../validator/blog.validator';
+import BlogModel from "../models/blog.model";
 
 class BlogsController implements IController {
     public path = '/blog';
     public router = Router();
     private BlogService = new BlogService();
+    private blog = BlogModel;
 
     constructor(){
        this.initialiseRoutes();
@@ -24,20 +26,20 @@ class BlogsController implements IController {
         );
 
         this.router.put(
-            `${this.path}/update-blog`,
+            `${this.path}/update-blog/:id`,
             exceptionMiddleware(validator.blog),
             this.updateBlog
 
         );
 
         this.router.delete(
-            `${this.path}/delete-blog`,
+            `${this.path}/delete-blog/:id`,
             this.DeleteBlog
         );
         
         this.router.get(`${this.path}/get-blogs`, this.GetAllBlogs);
 
-        this.router.get(`${this.path}/get-blog`, this.GetBlogById)
+        this.router.get(`${this.path}/get-blog/:id`, this.GetBlogById)
     }
 
     private createBlog = async(
@@ -46,16 +48,16 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {_id, userId, content, title, blogPictureUrl} = req.body;
+            const { userId, content, title, blogPictureUrl} = req.body;
 
-            const newUser = await this.BlogService.createBlog(
-                _id,
+            const blog = await this.BlogService.createBlog(
                 userId,
                 content,
                 title,
                 blogPictureUrl,
             );
-            res.status(201).json({userId: newUser});
+
+            res.status(201).json({userId: blog});
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
@@ -83,9 +85,9 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {blogId} = req.body;
-            const blogs = await this.BlogService.getBlogById(blogId)
-            res.status(200).json({blogs});
+            const {blogId} = req.params;
+           const blog = await this.BlogService.getBlogById(blogId);
+            res.status(200).json({blog});
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
@@ -119,9 +121,13 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {blogId} = req.body;
-            const blogs = await this.BlogService.deleteBlogById(blogId)
-            res.status(200).json({blogs});
+            const {blogId} = req.params;
+            const blog = await this.blog.findByIdAndDelete(blogId);
+            if(!blog){
+                throw new Error("Not found with the blog Id provided.");
+            }
+
+            res.status(200).json({blog});
 
         } catch (error:any) {
             next(new HttpException(400, error.message));

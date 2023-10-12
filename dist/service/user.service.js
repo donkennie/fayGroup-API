@@ -18,9 +18,7 @@ class UserService {
     constructor() {
         this.user = user_model_1.default;
     }
-    register(
-    // _id: ObjectId,
-    name, email, profilePicture, password) {
+    register(name, email, profilePicture, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const existingUser = yield this.user.findOne({ email });
@@ -28,7 +26,6 @@ class UserService {
                     throw new Error("User already exists.");
                 }
                 const newUser = yield this.user.create({
-                    // _id: new ObjectId(),
                     name,
                     email,
                     profilePicture,

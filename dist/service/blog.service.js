@@ -12,20 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongodb_1 = require("mongodb");
 const blog_model_1 = __importDefault(require("../models/blog.model"));
 class BlogService {
     constructor() {
         this.blog = blog_model_1.default;
     }
-    createBlog(_id, userId, title, content, blogPictureUrl) {
+    createBlog(userId, content, title, blogPictureUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const createBlog = yield this.blog.create({
-                    _id: new mongodb_1.ObjectId(),
                     userId,
-                    title,
                     content,
+                    title,
                     blogPictureUrl
                 });
                 return "Created successfully";
@@ -49,18 +47,11 @@ class BlogService {
     getBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blog = yield this.blog.findById(blogId);
+                const blog = yield this.blog.findOne({ blogId });
                 if (!blog) {
                     throw new Error("Not found with the blog Id provided.");
                 }
-                return {
-                    userId: blog.userId,
-                    blogId: blog === null || blog === void 0 ? void 0 : blog._id,
-                    title: blog.title,
-                    content: blog.content,
-                    blogPictureUrl: blog.blogPictureUrl,
-                    publishedAt: blog.PublishedAt,
-                };
+                return blog;
             }
             catch (error) {
                 throw new Error('Unable to fetch the available blog');
@@ -70,8 +61,8 @@ class BlogService {
     deleteBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blogs = yield this.blog.findByIdAndDelete(blogId);
-                if (!blogs) {
+                const blog = yield this.blog.findByIdAndDelete(blogId);
+                if (!blog) {
                     throw new Error("Not found with the blog Id provided.");
                 }
                 return {
@@ -86,7 +77,7 @@ class BlogService {
     UpdateBlog(id, title, content, blogPictureUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blogFromDb = yield this.blog.findById(id);
+                const blogFromDb = yield this.blog.findOne({ id });
                 if (blogFromDb === null) {
                     throw new Error("Not found with the blog Id provided.");
                 }

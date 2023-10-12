@@ -25,11 +25,9 @@ class UserController {
         this.UserService = new user_service_1.default();
         this.register = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { name, email, password, profilePicture } = req.body;
-                const newUser = yield this.UserService.register(
-                // _id,
-                name, email, password, profilePicture);
-                res.status(201).json({ userId: newUser });
+                const { name, email, profilePicture, password } = req.body;
+                const newUser = yield this.UserService.register(name, email, profilePicture, password);
+                res.status(201).json({ user: newUser });
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));

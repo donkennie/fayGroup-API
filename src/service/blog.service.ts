@@ -6,19 +6,18 @@ class BlogService{
 
 
     public async createBlog(
-        _id: ObjectId,
         userId: string, 
-        title: string,
         content: string,
+        title: string,
         blogPictureUrl: string
     ): Promise<string | Error>
     {
         try {
+
             const createBlog = await this.blog.create({
-                _id: new ObjectId(),
                 userId,
-                title,
                 content,
+                title,
                 blogPictureUrl
             })
 
@@ -43,21 +42,14 @@ class BlogService{
 
     public async getBlogById(
         blogId: string,
-        ): Promise<{userId: string, blogId: object, title: string, content: string, blogPictureUrl: string, publishedAt: Date } | Error>{
+        ): Promise<object | Error>{
             try {
-                const blog = await this.blog.findById(blogId);
+                const blog = await this.blog.findOne({blogId});
                 if(!blog){
                     throw new Error("Not found with the blog Id provided.");
                 }
 
-                return {
-                    userId: blog.userId,
-                    blogId: blog?._id,
-                    title: blog.title,
-                    content: blog.content,
-                    blogPictureUrl: blog.blogPictureUrl,
-                    publishedAt: blog.PublishedAt,
-                };
+                return blog;
             } catch (error) {
                 throw new Error('Unable to fetch the available blog');
             }
@@ -67,8 +59,9 @@ class BlogService{
             blogId: string,
             ): Promise<object | Error>{
                 try {
-                    const blogs = await this.blog.findByIdAndDelete(blogId);
-                    if(!blogs){
+
+                    const blog = await this.blog.findByIdAndDelete(blogId);
+                    if(!blog){
                         throw new Error("Not found with the blog Id provided.");
                     }
     
@@ -90,7 +83,7 @@ class BlogService{
             {
                 try {
 
-                    const blogFromDb = await this.blog.findById(id)
+                    const blogFromDb = await this.blog.findOne({id});
                     if(blogFromDb === null){
                         throw new Error("Not found with the blog Id provided.");
                     }

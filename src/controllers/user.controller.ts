@@ -37,16 +37,15 @@ class UserController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { name, email, password, profilePicture} = req.body;
+            const { name, email, profilePicture, password} = req.body;
 
             const newUser = await this.UserService.register(
-               // _id,
                 name,
                 email,
-                password,
-                profilePicture
+                profilePicture,
+                password
             );
-            res.status(201).json({userId: newUser});
+            res.status(201).json({user: newUser});
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
