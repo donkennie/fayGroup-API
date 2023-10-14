@@ -1,6 +1,7 @@
 import UserModel from "../models/user.model";
 import jwtToken from '../utils/jwtToken';
 import {ObjectId} from 'mongodb';
+import IUser from "interfaces/user.interface";
 import jwt from 'jsonwebtoken';
 
 class UserService{
@@ -60,6 +61,20 @@ class UserService{
         }
     }
 
+    public async getUserById(userId: string): Promise<IUser | Error> {
+        try {
+            const existingUser = await this.user.findOne({userId: userId});
+    
+            if (!existingUser) {
+                throw new Error("No user exists with this ID.");
+            }
+    
+            return existingUser;
+        } catch (error) {
+            return new Error("User not found or an error occurred.");
+        }
+    }
+    
 
 }
 

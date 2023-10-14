@@ -18,15 +18,20 @@ const exception_middleware_1 = __importDefault(require("../middleware/exception.
 const blog_service_1 = __importDefault(require("../service/blog.service"));
 const blog_validator_1 = __importDefault(require("../validator/blog.validator"));
 const blog_model_1 = __importDefault(require("../models/blog.model"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 class BlogsController {
     constructor() {
         this.path = '/blog';
         this.router = (0, express_1.Router)();
+        this.user = user_model_1.default;
         this.BlogService = new blog_service_1.default();
         this.blog = blog_model_1.default;
         this.createBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, content, title, blogPictureUrl } = req.body;
+                const user = yield this.user.findOne({ userId: userId });
+                if (!user)
+                    res.status(401).json({ success: false, message: 'No user is found with this ID' });
                 const blog = yield this.BlogService.createBlog(userId, content, title, blogPictureUrl);
                 res.status(201).json({ userId: blog });
             }

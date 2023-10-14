@@ -6,10 +6,13 @@ import exceptionMiddleware from '../middleware/exception.middleware';
 import BlogService from '../service/blog.service';
 import validator from '../validator/blog.validator';
 import BlogModel from "../models/blog.model";
+import UserModel from "../models/user.model";
+
 
 class BlogsController implements IController {
     public path = '/blog';
     public router = Router();
+    private user = UserModel;
     private BlogService = new BlogService();
     private blog = BlogModel;
 
@@ -49,6 +52,11 @@ class BlogsController implements IController {
     ): Promise<Response | void> => {
         try {
             const { userId, content, title, blogPictureUrl} = req.body;
+
+            const user = await this.user.findOne({userId: userId});
+
+            if(!user) 
+            res.status(401).json({ success: false, message: 'No user is found with this ID' });
 
             const blog = await this.BlogService.createBlog(
                 userId,

@@ -61,5 +61,19 @@ class UserService {
             }
         });
     }
+    getUserById(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const existingUser = yield this.user.findOne({ userId: userId });
+                if (!existingUser) {
+                    throw new Error("No user exists with this ID.");
+                }
+                return existingUser;
+            }
+            catch (error) {
+                return new Error("User not found or an error occurred.");
+            }
+        });
+    }
 }
 exports.default = UserService;
