@@ -44,8 +44,8 @@ class BlogService{
         blogId: string,
         ): Promise<object | Error>{
             try {
-                const blog = await this.blog.findOne({blogId});
-                if(!blog){
+                const blog = await this.blog.findById(blogId);
+                if(blog === null){
                     throw new Error("Not found with the blog Id provided.");
                 }
 
@@ -77,13 +77,14 @@ class BlogService{
             public async UpdateBlog(
                 id: string,
                 title: string,
+                userId: string,
                 content: string,
                 blogPictureUrl: string
             ): Promise<string | Error>
             {
                 try {
 
-                    const blogFromDb = await this.blog.findOne({id});
+                    const blogFromDb = await this.blog.findById(id);
                     if(blogFromDb === null){
                         throw new Error("Not found with the blog Id provided.");
                     }
@@ -91,6 +92,7 @@ class BlogService{
                     const createBlog = await this.blog.updateOne({
                         title,
                         content,
+                        userId,
                         blogPictureUrl
                     })
         

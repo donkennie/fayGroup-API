@@ -47,8 +47,8 @@ class BlogService {
     getBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blog = yield this.blog.findOne({ blogId });
-                if (!blog) {
+                const blog = yield this.blog.findById(blogId);
+                if (blog === null) {
                     throw new Error("Not found with the blog Id provided.");
                 }
                 return blog;
@@ -74,16 +74,17 @@ class BlogService {
             }
         });
     }
-    UpdateBlog(id, title, content, blogPictureUrl) {
+    UpdateBlog(id, title, userId, content, blogPictureUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blogFromDb = yield this.blog.findOne({ id });
+                const blogFromDb = yield this.blog.findById(id);
                 if (blogFromDb === null) {
                     throw new Error("Not found with the blog Id provided.");
                 }
                 const createBlog = yield this.blog.updateOne({
                     title,
                     content,
+                    userId,
                     blogPictureUrl
                 });
                 return "Updated successfully";

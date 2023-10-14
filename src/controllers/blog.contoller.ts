@@ -53,19 +53,20 @@ class BlogsController implements IController {
         try {
             const { userId, content, title, blogPictureUrl} = req.body;
 
-            const user = await this.user.findOne({userId: userId});
+            const user = await this.user.findById(req.body.userId);
 
-            if(!user) 
+            if(user === null) 
             res.status(401).json({ success: false, message: 'No user is found with this ID' });
 
-            const blog = await this.BlogService.createBlog(
+        // const blog = await this.BlogService.createBlog(
+            const blog = await this.blog.create({
                 userId,
                 content,
                 title,
                 blogPictureUrl,
-            );
+        });
 
-            res.status(201).json({userId: blog});
+            res.status(201).json("Blog created successfully");
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
@@ -93,9 +94,10 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {blogId} = req.params;
-           const blog = await this.BlogService.getBlogById(blogId);
-            res.status(200).json({blog});
+
+           const blog = await this.BlogService.getBlogById(req.params.id);
+    
+            res.status(200).json({blog});       
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
@@ -108,15 +110,12 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {blogId, content, title, blogPictureUrl} = req.body;
+                    const updateBlog = await this.blog.findByIdAndUpdate(req.params.id, req.body, {
+                        new: true,
+                        runValidators: true,
+                      })
 
-            const newUser = await this.BlogService.UpdateBlog(
-                blogId,
-                content,
-                title,
-                blogPictureUrl,
-            );
-            res.status(201).json({userId: newUser});
+            res.status(201).json("Updated blog successfully");
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
@@ -129,8 +128,8 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const {blogId} = req.params;
-            const blog = await this.blog.findByIdAndDelete(blogId);
+            
+            const blog = await this.BlogService.deleteBlogById(req.params.id);
             if(!blog){
                 throw new Error("Not found with the blog Id provided.");
             }

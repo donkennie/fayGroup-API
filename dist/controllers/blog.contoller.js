@@ -29,11 +29,17 @@ class BlogsController {
         this.createBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, content, title, blogPictureUrl } = req.body;
-                const user = yield this.user.findOne({ userId: userId });
-                if (!user)
+                const user = yield this.user.findById(req.body.userId);
+                if (user === null)
                     res.status(401).json({ success: false, message: 'No user is found with this ID' });
-                const blog = yield this.BlogService.createBlog(userId, content, title, blogPictureUrl);
-                res.status(201).json({ userId: blog });
+                // const blog = await this.BlogService.createBlog(
+                const blog = yield this.blog.create({
+                    userId,
+                    content,
+                    title,
+                    blogPictureUrl,
+                });
+                res.status(201).json("Blog created successfully");
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -50,8 +56,7 @@ class BlogsController {
         });
         this.GetBlogById = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { blogId } = req.params;
-                const blog = yield this.BlogService.getBlogById(blogId);
+                const blog = yield this.BlogService.getBlogById(req.params.id);
                 res.status(200).json({ blog });
             }
             catch (error) {
@@ -60,9 +65,11 @@ class BlogsController {
         });
         this.updateBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { blogId, content, title, blogPictureUrl } = req.body;
-                const newUser = yield this.BlogService.UpdateBlog(blogId, content, title, blogPictureUrl);
-                res.status(201).json({ userId: newUser });
+                const updateBlog = yield this.blog.findByIdAndUpdate(req.params.id, req.body, {
+                    new: true,
+                    runValidators: true,
+                });
+                res.status(201).json("Updated blog successfully");
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -70,8 +77,7 @@ class BlogsController {
         });
         this.DeleteBlog = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { blogId } = req.params;
-                const blog = yield this.blog.findByIdAndDelete(blogId);
+                const blog = yield this.BlogService.deleteBlogById(req.params.id);
                 if (!blog) {
                     throw new Error("Not found with the blog Id provided.");
                 }
