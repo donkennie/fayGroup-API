@@ -30,7 +30,7 @@ class UserController {
             try {
                 const { name, email, profilePicture, password } = req.body;
                 const newUser = yield this.UserService.register(name, email, profilePicture, password);
-                res.status(201).json({ user: newUser });
+                res.status(201).json("User registered successfully!");
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));

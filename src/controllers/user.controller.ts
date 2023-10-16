@@ -50,7 +50,7 @@ class UserController implements IController {
                 profilePicture,
                 password
             );
-            res.status(201).json({user: newUser});
+            res.status(201).json("User registered successfully!");
 
         } catch (error:any) {
             next(new HttpException(400, error.message));
