@@ -5,6 +5,7 @@ import HttpException from '../middleware/http.exception';
 import authenticated from '../middleware/authenticated.middleware'
 import exceptionMiddleware from '../middleware/exception.middleware';
 import validator from '../validator/user.validator';
+import IUser  from '../interfaces/user.interface'
 import UserModel from "../models/user.model";
 import uploadImage from '../utils/upload-image';
 
@@ -35,7 +36,7 @@ class UserController implements IController {
         this.router.get(`${this.path}/get-user-by-id/:id`, this.getUserById)
         this.router.put(`${this.path}/upload-profile-picture`, this.UploadPicture)
     }
-
+    
     private register = async(
         req: Request,
         res: Response,
@@ -126,7 +127,7 @@ private UploadPicture = async (
 ): Promise<Response | void> => {
     try {
         const { userId } = req.body;
-        const user = await this.user.findOne({ userId: userId });
+        const user = await this.UserService.getUserById(userId) as IUser;
 
         if (!user) {
             return res.status(401).json({ success: false, message: 'Wrong Credentials' });

@@ -78,7 +78,7 @@ class UserController {
         this.UploadPicture = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
-                const user = yield this.user.findOne({ userId: userId });
+                const user = yield this.UserService.getUserById(userId);
                 if (!user) {
                     return res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 }
