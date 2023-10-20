@@ -3,30 +3,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
 const cloudinary_1 = __importDefault(require("cloudinary"));
-const cloud_name = process.env.CLOUD_NAME;
-const api_key = process.env.API_KEY;
-const api_secret = process.env.API_SECRET;
-cloudinary_1.default.v2.config({
-    cloud_name: 'donkennie',
-    api_key: '647322255472842',
-    api_secret: 'Ury67INi4VJpIYxT_miVSHviBw8'
+// Configuration for multer
+const multerStorage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "./uploads");
+    },
+    filename: (req, file, cb) => {
+        const ext = file.mimetype.split("/")[1];
+        cb(null, `file/user-${path_1.default.extname(file.originalname)}-${Date.now()}.${ext}`);
+    },
 });
-const opts = {
-    overwrite: true,
-    invalidate: true,
-    resource_type: "auto",
+// Multer filter for images
+const multerFilter = (req, file, cb) => {
+    const allowedFileTypes = ["jpg", "jpeg", "gif", "png"];
+    const fileType = file.mimetype.split("/")[1];
+    if (allowedFileTypes.includes(fileType)) {
+        cb(null, true);
+    }
+    else {
+        cb(new Error("Violated file requirements"));
+    }
 };
-const uploadImage = (image) => {
-    const opts = {}; // You can customize the upload options here
+const handleMultipartData = (0, multer_1.default)({
+    storage: multerStorage,
+    limits: { fileSize: 1000000 * 5 },
+    fileFilter: multerFilter,
+}).single("image");
+// Cloudinary configuration
+cloudinary_1.default.v2.config({
+    cloud_name: "donkennie",
+    api_key: "647322255472842",
+    api_secret: "Ury67INi4VJpIYxT_miVSHviBw8",
+});
+// Function to upload an image to Cloudinary
+const uploadImage = (file) => {
     return new Promise((resolve, reject) => {
-        cloudinary_1.default.v2.uploader.upload(image, opts, (error, result) => {
+        // Then, upload the local image to Cloudinary
+        cloudinary_1.default.v2.uploader.upload(file, { overwrite: true }, (error, result) => {
             if (result && result.secure_url) {
-                console.log(result.secure_url);
-                return resolve(result.secure_url);
+                resolve(result.secure_url);
             }
-            console.error(error.message);
-            return reject({ message: error.message });
+            else {
+                reject({ message: error.message });
+            }
         });
     });
 };

@@ -19,6 +19,7 @@ const authenticated_middleware_1 = __importDefault(require("../middleware/authen
 const exception_middleware_1 = __importDefault(require("../middleware/exception.middleware"));
 const user_validator_1 = __importDefault(require("../validator/user.validator"));
 const user_model_1 = __importDefault(require("../models/user.model"));
+const multer_1 = __importDefault(require("../utils/multer"));
 const upload_image_1 = __importDefault(require("../utils/upload-image"));
 class UserController {
     constructor() {
@@ -30,7 +31,7 @@ class UserController {
             try {
                 const { name, email, profilePicture, password } = req.body;
                 const newUser = yield this.UserService.register(name, email, profilePicture, password);
-                res.status(201).json({ user: newUser });
+                res.status(201).json("User registered successfully!");
             }
             catch (error) {
                 next(new http_exception_1.default(400, error.message));
@@ -82,8 +83,11 @@ class UserController {
                 if (!user) {
                     return res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 }
-                const image = req.body.file;
-                if (image === null) {
+                if (!req.file) {
+                    return res.status(400).json({ success: false, message: 'No image provided' });
+                }
+                const image = req.file.path; // Access the uploaded file using req.file
+                if (!image) {
                     return res.status(400).json({ success: false, message: 'No image provided' });
                 }
                 const uploadPicture = yield (0, upload_image_1.default)(image);
@@ -116,7 +120,7 @@ class UserController {
         this.router.post(`${this.path}/sign-in`, (0, exception_middleware_1.default)(user_validator_1.default.login), this.login);
         this.router.get(`${this.path}/get-user`, authenticated_middleware_1.default, this.getUser);
         this.router.get(`${this.path}/get-user-by-id/:id`, this.getUserById);
-        this.router.put(`${this.path}/upload-profile-picture`, this.UploadPicture);
+        this.router.put(`${this.path}/upload-profile-picture`, multer_1.default, this.UploadPicture);
     }
 }
 exports.default = UserController;
