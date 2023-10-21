@@ -64,8 +64,8 @@ class UserService {
     getUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const existingUser = yield this.user.findOne({ userId: userId });
-                if (!existingUser) {
+                const existingUser = yield this.user.findById(userId);
+                if (existingUser === null) {
                     throw new Error("No user exists with this ID.");
                 }
                 return existingUser;

@@ -9,7 +9,8 @@ import IUser  from '../interfaces/user.interface'
 import UserModel from "../models/user.model";
 import path from 'path'
 import uploader from '../utils/multer'
-import uploadImage from '../utils/upload-image';
+import uploadImage, { upload } from '../utils/upload-image';
+import fs from "fs";
 
 class UserController implements IController {
     public path = '/users';
@@ -36,8 +37,10 @@ class UserController implements IController {
         );
         this.router.get(`${this.path}/get-user`, authenticated, this.getUser)
         this.router.get(`${this.path}/get-user-by-id/:id`, this.getUserById)
-        this.router.put(`${this.path}/upload-profile-picture`, uploader, this.UploadPicture)
+        this.router.put(`${this.path}/upload-profile-picture`, upload.single("file"), this.UploadPicture)
     }
+
+    
     
     private register = async(
         req: Request,
@@ -128,9 +131,10 @@ private UploadPicture = async (
     next: NextFunction
   ): Promise<Response | void> => {
     try {
-      const { userId } = req.body;
-      const user = await this.UserService.getUserById(userId) as IUser;
-  
+      //const { userId } = req.body;
+     // const user = await this.UserService.getUserById(userId) as IUser;
+     const user = await this.user.findOne({userId: req.body.userId});
+     console.log(user)
       if (!user) {
         return res.status(401).json({ success: false, message: 'Wrong Credentials' });
       }
@@ -139,18 +143,19 @@ private UploadPicture = async (
             return res.status(400).json({ success: false, message: 'No image provided' });
           }
   
-        const image = req.file.path; // Access the uploaded file using req.file
-  
-        if (!image) {
-          return res.status(400).json({ success: false, message: 'No image provided' });
-        }
-  
-        const uploadPicture = await uploadImage(image);
-  
-        // Update the user's profile picture
+        const image = req.file.path;
+
+        const imageToBase64 = (filePath: string) => {
+            // read binary data
+            const bitmap = fs.readFileSync(filePath, {encoding: 'base64'});
+            return `data:image/jpeg;base64,${bitmap}`
+        };
+        
+        let fileData = imageToBase64(image)
+        const uploadPicture = await uploadImage(fileData);
+        console.log(uploadPicture)
         user.profilePicture = uploadPicture;
   
-        // Save the updated user
         await user.save();
   
         return res.json({ success: true, message: 'Profile picture updated', profilePicture: uploadPicture });
@@ -168,13 +173,12 @@ private UploadPicture = async (
         next: NextFunction
         ): Promise<Response | void> => {
             try {
-                const {userId} = req.params;
-                const user = await this.UserService.getUserById(userId);
-
+                const user = await this.UserService.getUserById(req.params.id);
+                console.log(user)
                 if(!user) 
                 res.status(401).json({ success: false, message: 'Wrong Credentials' });
 
-                res.status(201).json({user});
+                res.status(200).json({user});
             } catch (error:any) {
                 next(new HttpException(400, error.message));
             }

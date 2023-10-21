@@ -41,7 +41,7 @@ class BlogService{
     }
 
     public async getBlogById(
-        blogId: string,
+        blogId: string
         ): Promise<object | Error>{
             try {
                 const blog = await this.blog.findById(blogId);

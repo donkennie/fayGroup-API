@@ -30,6 +30,6 @@ const uploader = multer({
   storage: multerStorage,
   limits: { fileSize: 1000000 * 5 },
   fileFilter: multerFilter,
-}).single('image');
+}).single('file');
 
 export default uploader;

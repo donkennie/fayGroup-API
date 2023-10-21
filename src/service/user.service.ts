@@ -63,9 +63,9 @@ class UserService{
 
     public async getUserById(userId: string): Promise<IUser | Error> {
         try {
-            const existingUser = await this.user.findOne({userId: userId});
-    
-            if (!existingUser) {
+            const existingUser = await this.user.findById(userId);
+          
+            if (existingUser === null) {
                 throw new Error("No user exists with this ID.");
             }
     
