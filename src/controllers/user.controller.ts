@@ -127,13 +127,13 @@ private UploadPicture = async (
 ): Promise<Response | void> => {
     try {
         const { userId } = req.body;
+        const image = req.body.file; 
         const user = await this.UserService.getUserById(userId) as IUser;
 
         if (!user) {
             return res.status(401).json({ success: false, message: 'Wrong Credentials' });
         }
 
-        const image = req.body.file; 
         if (image === null) {
             return res.status(400).json({ success: false, message: 'No image provided' });
         }

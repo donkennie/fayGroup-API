@@ -78,11 +78,11 @@ class UserController {
         this.UploadPicture = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
+                const image = req.body.file;
                 const user = yield this.UserService.getUserById(userId);
                 if (!user) {
                     return res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 }
-                const image = req.body.file;
                 if (image === null) {
                     return res.status(400).json({ success: false, message: 'No image provided' });
                 }
