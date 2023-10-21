@@ -7,6 +7,8 @@ import exceptionMiddleware from '../middleware/exception.middleware';
 import validator from '../validator/user.validator';
 import IUser  from '../interfaces/user.interface'
 import UserModel from "../models/user.model";
+import path from 'path'
+import uploader from '../utils/multer'
 import uploadImage from '../utils/upload-image';
 
 class UserController implements IController {
@@ -34,7 +36,7 @@ class UserController implements IController {
         );
         this.router.get(`${this.path}/get-user`, authenticated, this.getUser)
         this.router.get(`${this.path}/get-user-by-id/:id`, this.getUserById)
-        this.router.put(`${this.path}/upload-profile-picture`, this.UploadPicture)
+        this.router.put(`${this.path}/upload-profile-picture`, uploader, this.UploadPicture)
     }
     
     private register = async(
@@ -124,33 +126,40 @@ private UploadPicture = async (
     req: Request,
     res: Response,
     next: NextFunction
-): Promise<Response | void> => {
+  ): Promise<Response | void> => {
     try {
-        const { userId } = req.body;
-        const image = req.body.file; 
-        const user = await this.UserService.getUserById(userId) as IUser;
+      const { userId } = req.body;
+      const user = await this.UserService.getUserById(userId) as IUser;
+  
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Wrong Credentials' });
+      }
 
-        if (!user) {
-            return res.status(401).json({ success: false, message: 'Wrong Credentials' });
-        }
-
-        if (image === null) {
+        if (!req.file) {
             return res.status(400).json({ success: false, message: 'No image provided' });
+          }
+  
+        const image = req.file.path; // Access the uploaded file using req.file
+  
+        if (!image) {
+          return res.status(400).json({ success: false, message: 'No image provided' });
         }
-
+  
         const uploadPicture = await uploadImage(image);
-
+  
         // Update the user's profile picture
         user.profilePicture = uploadPicture;
-
+  
         // Save the updated user
         await user.save();
-
+  
         return res.json({ success: true, message: 'Profile picture updated', profilePicture: uploadPicture });
+
     } catch (error: any) {
-        next(new HttpException(400, error.message));
+      next(new HttpException(400, error.message));
     }
-};
+  };
+  
 
 
     private getUserById = async (
