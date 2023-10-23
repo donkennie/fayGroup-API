@@ -4,7 +4,6 @@ const blog = Joi.object({
     userId: Joi.string().required(),
     content: Joi.string().required(),
     title: Joi.string().required(),
-    blogPictureUrl: Joi.string().required()
 });
 
 export default {blog};

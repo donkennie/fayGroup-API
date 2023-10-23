@@ -7,7 +7,8 @@ import BlogService from '../service/blog.service';
 import validator from '../validator/blog.validator';
 import BlogModel from "../models/blog.model";
 import UserModel from "../models/user.model";
-
+import uploadImage, { upload } from '../utils/upload-image';
+import fs from "fs";
 
 class BlogsController implements IController {
     public path = '/blog';
@@ -23,6 +24,7 @@ class BlogsController implements IController {
     private initialiseRoutes(): void {
         this.router.post(
             `${this.path}/create-blog`,
+            upload.single("file"),
             exceptionMiddleware(validator.blog),
             this.createBlog
 
@@ -51,20 +53,35 @@ class BlogsController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { userId, content, title, blogPictureUrl} = req.body;
+            const { userId, content, title} = req.body;
 
             const user = await this.user.findById(req.body.userId);
 
             if(user === null) 
             res.status(401).json({ success: false, message: 'No user is found with this ID' });
 
-        // const blog = await this.BlogService.createBlog(
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'No image provided' });
+            }
+
+            const image = req.file.path;
+
+            const imageToBase64 = (filePath: string) => {
+                // read binary data
+                const bitmap = fs.readFileSync(filePath, {encoding: 'base64'});
+                return `data:image/jpeg;base64,${bitmap}`
+            };
+            
+            let fileData = imageToBase64(image)
+            
+            const uploadPicture = await uploadImage(fileData);
+
             const blog = await this.blog.create({
                 userId,
                 content,
                 title,
-                blogPictureUrl,
-        });
+                blogPictureUrl: uploadPicture,
+            });
 
             res.status(201).json("Blog created successfully");
 

@@ -52,8 +52,28 @@ class UserController {
         this.UserService = new user_service_1.default();
         this.register = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const { name, email, profilePicture, password } = req.body;
-                const newUser = yield this.UserService.register(name, email, profilePicture, password);
+                const { name, email, password } = req.body;
+                if (!req.file) {
+                    return res.status(400).json({ success: false, message: 'No image provided' });
+                }
+                const image = req.file.path;
+                const imageToBase64 = (filePath) => {
+                    // read binary data
+                    const bitmap = fs_1.default.readFileSync(filePath, { encoding: 'base64' });
+                    return `data:image/jpeg;base64,${bitmap}`;
+                };
+                let fileData = imageToBase64(image);
+                const uploadPicture = yield (0, upload_image_1.default)(fileData);
+                const existingUser = yield this.user.findOne({ email });
+                if (existingUser != null) {
+                    throw new Error("User already exists.");
+                }
+                const newUser = yield this.user.create({
+                    name,
+                    email,
+                    password,
+                    profilePicture: uploadPicture
+                });
                 res.status(201).json("User registered successfully!");
             }
             catch (error) {
@@ -78,33 +98,9 @@ class UserController {
             }
             res.status(200).send({ data: req.user });
         };
-        // private UploadPicture = async(
-        //     req: Request,
-        //     res: Response,
-        //     next: NextFunction
-        // ): Promise<Response | void> => {
-        //     try{
-        //         const image = req.body.image;
-        //         const {userId} = req.body;
-        //         const user = await this.user.findOne({userId: userId});
-        //         if(!user) 
-        //         res.status(401).json({ success: false, message: 'No user is found with this ID' });
-        //         let uploadPicture = await uploadImage(image);
-        //        // user?.profilePicture =u
-        //         const updateUser = await this.user.updateOne({user: user});
-        //         res.json({ uploadPicture });
-        //     }
-        //     catch (error:any) {
-        //         next(new HttpException(400, error.message));
-        //     }
-        // }
-        // ...
         this.UploadPicture = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
-                //const { userId } = req.body;
-                // const user = await this.UserService.getUserById(userId) as IUser;
-                const user = yield this.user.findOne({ userId: req.body.userId });
-                console.log(user);
+                const user = yield this.user.findById(req.body.userId);
                 if (!user) {
                     return res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 }
@@ -143,7 +139,7 @@ class UserController {
         this.initialiseRoutes();
     }
     initialiseRoutes() {
-        this.router.post(`${this.path}/register`, (0, exception_middleware_1.default)(user_validator_1.default.register), this.register);
+        this.router.post(`${this.path}/register`, upload_image_1.upload.single("file"), (0, exception_middleware_1.default)(user_validator_1.default.register), this.register);
         this.router.post(`${this.path}/sign-in`, (0, exception_middleware_1.default)(user_validator_1.default.login), this.login);
         this.router.get(`${this.path}/get-user`, authenticated_middleware_1.default, this.getUser);
         this.router.get(`${this.path}/get-user-by-id/:id`, this.getUserById);

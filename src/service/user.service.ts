@@ -10,7 +10,7 @@ class UserService{
     public async register(
         name: string,
         email: string,
-        profilePicture: string,
+        uploadPicture: string,
         password: string
     ): Promise<string | Error>{
         try {
@@ -22,7 +22,7 @@ class UserService{
             const newUser = await this.user.create({
                 name,
                 email,
-                profilePicture,
+                uploadPicture: uploadPicture,
                 password
             });
 
@@ -61,7 +61,7 @@ class UserService{
         }
     }
 
-    public async getUserById(userId: string): Promise<IUser | Error> {
+    public async getUserById(userId: string): Promise<{userId:string, profilePicture:string, name:string, email:string} | Error> {
         try {
             const existingUser = await this.user.findById(userId);
           
@@ -69,7 +69,7 @@ class UserService{
                 throw new Error("No user exists with this ID.");
             }
     
-            return existingUser;
+            return {userId: existingUser._id, profilePicture: existingUser.profilePicture, name: existingUser.name, email: existingUser.email};
         } catch (error) {
             return new Error("User not found or an error occurred.");
         }

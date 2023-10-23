@@ -25,6 +25,7 @@ class UserController implements IController {
     private initialiseRoutes(): void {
         this.router.post(
             `${this.path}/register`,
+            upload.single("file"),
             exceptionMiddleware(validator.register),
             this.register
 
@@ -48,14 +49,38 @@ class UserController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { name, email, profilePicture, password} = req.body;
+            
+            const { name, email, password} = req.body;
 
-            const newUser = await this.UserService.register(
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'No image provided' });
+            }
+
+            const image = req.file.path;
+
+            const imageToBase64 = (filePath: string) => {
+                // read binary data
+                const bitmap = fs.readFileSync(filePath, {encoding: 'base64'});
+                return `data:image/jpeg;base64,${bitmap}`
+            };
+            
+            let fileData = imageToBase64(image)
+            
+            const uploadPicture = await uploadImage(fileData);
+
+            const existingUser = await this.user.findOne({ email });
+            if (existingUser != null){
+                throw new Error("User already exists.");
+            }
+            
+            const newUser = await this.user.create({
                 name,
                 email,
-                profilePicture,
-                password
-            );
+                password,
+                profilePicture: uploadPicture
+            });
+
+
             res.status(201).json("User registered successfully!");
 
         } catch (error:any) {
@@ -93,37 +118,8 @@ class UserController implements IController {
             return next(new HttpException(404, 'No logged in user'));
         }
         res.status(200).send({ data: req.user });
-    }
-
-    // private UploadPicture = async(
-    //     req: Request,
-    //     res: Response,
-    //     next: NextFunction
-    // ): Promise<Response | void> => {
-    //     try{
-    //         const image = req.body.image;
-    //         const {userId} = req.body;
-            
-    //         const user = await this.user.findOne({userId: userId});
-
-    //         if(!user) 
-    //         res.status(401).json({ success: false, message: 'No user is found with this ID' });
-
-    //         let uploadPicture = await uploadImage(image);
-    //        // user?.profilePicture =u
-
-    //         const updateUser = await this.user.updateOne({user: user});
-
-    //         res.json({ uploadPicture });
-            
-    //     }
-    //     catch (error:any) {
-    //         next(new HttpException(400, error.message));
-    //     }
-    // }
-
-
-// ...
+    }   
+   
 
 private UploadPicture = async (
     req: Request,
@@ -131,10 +127,9 @@ private UploadPicture = async (
     next: NextFunction
   ): Promise<Response | void> => {
     try {
-      //const { userId } = req.body;
-     // const user = await this.UserService.getUserById(userId) as IUser;
-     const user = await this.user.findOne({userId: req.body.userId});
-     console.log(user)
+      
+     const user = await this.user.findById(req.body.userId);
+
       if (!user) {
         return res.status(401).json({ success: false, message: 'Wrong Credentials' });
       }

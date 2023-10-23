@@ -8,6 +8,5 @@ const blog = joi_1.default.object({
     userId: joi_1.default.string().required(),
     content: joi_1.default.string().required(),
     title: joi_1.default.string().required(),
-    blogPictureUrl: joi_1.default.string().required()
 });
 exports.default = { blog };

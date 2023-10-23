@@ -18,7 +18,7 @@ class UserService {
     constructor() {
         this.user = user_model_1.default;
     }
-    register(name, email, profilePicture, password) {
+    register(name, email, uploadPicture, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const existingUser = yield this.user.findOne({ email });
@@ -28,7 +28,7 @@ class UserService {
                 const newUser = yield this.user.create({
                     name,
                     email,
-                    profilePicture,
+                    uploadPicture: uploadPicture,
                     password
                 });
                 //const accessToken = jwtToken.createToken(newUser)
@@ -68,7 +68,7 @@ class UserService {
                 if (existingUser === null) {
                     throw new Error("No user exists with this ID.");
                 }
-                return existingUser;
+                return { userId: existingUser._id, profilePicture: existingUser.profilePicture, name: existingUser.name, email: existingUser.email };
             }
             catch (error) {
                 return new Error("User not found or an error occurred.");
