@@ -61,7 +61,7 @@ class UserService{
         }
     }
 
-    public async getUserById(userId: string): Promise<{userId:string, profilePicture:string, name:string, email:string} | Error> {
+    public async getUserById(userId: string): Promise<{profilePicture:string, name:string} | Error> {
         try {
             const existingUser = await this.user.findById(userId);
           
@@ -69,7 +69,7 @@ class UserService{
                 throw new Error("No user exists with this ID.");
             }
     
-            return {userId: existingUser._id, profilePicture: existingUser.profilePicture, name: existingUser.name, email: existingUser.email};
+            return {profilePicture: existingUser.profilePicture, name: existingUser.name};
         } catch (error) {
             return new Error("User not found or an error occurred.");
         }
