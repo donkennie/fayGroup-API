@@ -68,7 +68,7 @@ class UserService {
                 if (existingUser === null) {
                     throw new Error("No user exists with this ID.");
                 }
-                return { userId: existingUser._id, profilePicture: existingUser.profilePicture, name: existingUser.name, email: existingUser.email };
+                return { profilePicture: existingUser.profilePicture, name: existingUser.name };
             }
             catch (error) {
                 return new Error("User not found or an error occurred.");
