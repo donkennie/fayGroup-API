@@ -35,7 +35,7 @@ class BlogService{
         try {
             const blogs = await this.blog.find().populate('user', '-_id name profilePicture')
             .lean();
-            
+
             return blogs;
         } catch (error) {
             throw new Error('Unable to fetch the available blogs');
@@ -44,9 +44,11 @@ class BlogService{
 
     public async getBlogById(blogId: string): Promise<object | Error> {
         try {
-            const blog = await this.blog.findById(blogId).populate('user', '_id name profilePicture')
-                .select('-_id -user')
+            const blog = await this.blog.findById(blogId).populate('user', '-_id name profilePicture')
+                .select('-_id -blog')
                 .lean();
+
+                console.log(blog)
 
             if (blog === null) {
                 throw new Error("Not found with the blog Id provided.");

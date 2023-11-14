@@ -48,9 +48,10 @@ class BlogService {
     getBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blog = yield this.blog.findById(blogId).populate('user', '_id name profilePicture')
-                    .select('-_id -user')
+                const blog = yield this.blog.findById(blogId).populate('user', '-_id name profilePicture')
+                    .select('-_id -blog')
                     .lean();
+                console.log(blog);
                 if (blog === null) {
                     throw new Error("Not found with the blog Id provided.");
                 }
