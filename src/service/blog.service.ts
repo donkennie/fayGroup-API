@@ -33,27 +33,32 @@ class BlogService{
 
     ): Promise<object[] | Error>{
         try {
-            const blogs = await this.blog.find();
+            const blogs = await this.blog.find().populate('user', '-_id name profilePicture')
+            .lean();
+            
             return blogs;
         } catch (error) {
             throw new Error('Unable to fetch the available blogs');
         }
     }
 
-    public async getBlogById(
-        blogId: string
-        ): Promise<object | Error>{
-            try {
-                const blog = await this.blog.findById(blogId);
-                if(blog === null){
-                    throw new Error("Not found with the blog Id provided.");
-                }
+    public async getBlogById(blogId: string): Promise<object | Error> {
+        try {
+            const blog = await this.blog.findById(blogId).populate('user', '_id name profilePicture')
+                .select('-_id -user')
+                .lean();
 
-                return blog;
-            } catch (error) {
-                throw new Error('Unable to fetch the available blog');
+            if (blog === null) {
+                throw new Error("Not found with the blog Id provided.");
             }
+    
+            return blog;
+        } catch (error) {
+            console.error(error); // Log the actual error for debugging
+            throw new Error('Unable to fetch the available blog');
         }
+    }
+    
 
         public async deleteBlogById(
             blogId: string,

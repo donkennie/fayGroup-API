@@ -77,7 +77,7 @@ class BlogsController implements IController {
             const uploadPicture = await uploadImage(fileData);
 
             const blog = await this.blog.create({
-                userId,
+                user: user,
                 content,
                 title,
                 blogPictureUrl: uploadPicture,

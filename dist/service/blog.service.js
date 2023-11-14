@@ -36,7 +36,8 @@ class BlogService {
     getAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blogs = yield this.blog.find();
+                const blogs = yield this.blog.find().populate('user', '-_id name profilePicture')
+                    .lean();
                 return blogs;
             }
             catch (error) {
@@ -47,13 +48,16 @@ class BlogService {
     getBlogById(blogId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const blog = yield this.blog.findById(blogId);
+                const blog = yield this.blog.findById(blogId).populate('user', '_id name profilePicture')
+                    .select('-_id -user')
+                    .lean();
                 if (blog === null) {
                     throw new Error("Not found with the blog Id provided.");
                 }
                 return blog;
             }
             catch (error) {
+                console.error(error); // Log the actual error for debugging
                 throw new Error('Unable to fetch the available blog');
             }
         });

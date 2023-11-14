@@ -69,7 +69,7 @@ class BlogsController {
                 let fileData = imageToBase64(image);
                 const uploadPicture = yield (0, upload_image_1.default)(fileData);
                 const blog = yield this.blog.create({
-                    userId,
+                    user: user,
                     content,
                     title,
                     blogPictureUrl: uploadPicture,

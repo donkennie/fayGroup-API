@@ -169,7 +169,7 @@ private UploadPicture = async (
         ): Promise<Response | void> => {
             try {
                 const user = await this.UserService.getUserById(req.params.id);
-                console.log(user)
+
                 if(!user) 
                 res.status(401).json({ success: false, message: 'Wrong Credentials' });
 

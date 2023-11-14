@@ -127,7 +127,6 @@ class UserController {
         this.getUserById = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield this.UserService.getUserById(req.params.id);
-                console.log(user);
                 if (!user)
                     res.status(401).json({ success: false, message: 'Wrong Credentials' });
                 res.status(200).json({ user });
