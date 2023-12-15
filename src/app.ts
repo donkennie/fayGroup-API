@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import Controller from './interfaces/controller.interface';
 import ErrorMiddleware from './middleware/error.middleware';
 import helmet from 'helmet';
+import * as fs from 'fs';
+import path from 'path';
 
 class App {
     public express: Application;
@@ -19,6 +21,7 @@ class App {
         this.initialiseMiddleware();
         this.initialiseControllers(controllers);
         this.initialiseErrorHandling();
+        this.sslCertificatesConfig();
     }
 
     private initialiseMiddleware(): void {
@@ -40,8 +43,21 @@ class App {
         this.express.use(ErrorMiddleware);
     }
 
-
     
+    private sslCertificatesConfig(): void {
+        const options = {
+            key: fs.readFileSync('./ssl/private-key.pem'),
+            cert: fs.readFileSync('./ssl/certificate.pem')
+        };
+        var app = express();
+       var server = require('https').createServer(options, app);
+
+       this.express = server;
+    }
+    
+    
+
+
     private initialiseDatabaseConnection(): void {
 
          const { MONGO_PATH } = process.env;
@@ -54,12 +70,29 @@ class App {
                
     }
 
+    // public listen(): void {
+    //     this.express.listen(this.port, () => {
+    //         console.log(`App listening on the port ${this.port}`);
+    //     });
+
+    // }
+
     public listen(): void {
+        this.sslCertificatesConfig(); 
         this.express.listen(this.port, () => {
             console.log(`App listening on the port ${this.port}`);
         });
+    };
 
-    }
+    // public listen(): void {
+    //     const httpsPort = 443;
+    //     this.sslCertificatesConfig();
+    
+    //     this.express.listen(httpsPort, () => {
+    //         console.log(`App listening on the HTTPS port ${httpsPort}`);
+    //     });
+    // }
+    
 }
 
 
