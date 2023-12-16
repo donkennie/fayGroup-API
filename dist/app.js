@@ -42,7 +42,7 @@ class App {
         this.initialiseMiddleware();
         this.initialiseControllers(controllers);
         this.initialiseErrorHandling();
-        this.sslCertificatesConfig();
+        // this.sslCertificatesConfig();
     }
     initialiseMiddleware() {
         this.express.use((0, helmet_1.default)());
@@ -60,29 +60,22 @@ class App {
     initialiseErrorHandling() {
         this.express.use(error_middleware_1.default);
     }
-    sslCertificatesConfig() {
-        const options = {
-            key: fs.readFileSync('./ssl/private-key.pem'),
-            cert: fs.readFileSync('./ssl/certificate.pem')
-        };
-        var app = (0, express_1.default)();
-        var server = require('https').createServer(options, app);
-        this.express = server;
-    }
     initialiseDatabaseConnection() {
         const { MONGO_PATH } = process.env;
         mongoose_1.default.connect(`${MONGO_PATH}`).then(() => {
             console.log('DB connection successful');
         });
     }
-    // public listen(): void {
-    //     this.express.listen(this.port, () => {
-    //         console.log(`App listening on the port ${this.port}`);
-    //     });
-    // }
     listen() {
-        this.sslCertificatesConfig();
-        this.express.listen(this.port, () => {
+        //  this.sslCertificatesConfig(); 
+        const options = {
+            key: fs.readFileSync('./ssl/private.key', 'utf8'),
+            cert: fs.readFileSync('./ssl/certificate.crt', 'utf8')
+        };
+        var app = (0, express_1.default)();
+        var server = require('https').createServer(options, app);
+        this.express = server;
+        server.listen(this.port, () => {
             console.log(`App listening on the port ${this.port}`);
         });
     }
