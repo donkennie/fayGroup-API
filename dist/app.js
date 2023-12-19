@@ -42,7 +42,6 @@ class App {
         this.initialiseMiddleware();
         this.initialiseControllers(controllers);
         this.initialiseErrorHandling();
-        // this.sslCertificatesConfig();
     }
     initialiseMiddleware() {
         this.express.use((0, helmet_1.default)());
@@ -67,12 +66,12 @@ class App {
         });
     }
     listen() {
-        //  this.sslCertificatesConfig(); 
         const options = {
-            key: fs.readFileSync('./ssl/private.key', 'utf8'),
-            cert: fs.readFileSync('./ssl/certificate.crt', 'utf8')
+            key: fs.readFileSync('./ssl/private.key'),
+            cert: fs.readFileSync('./ssl/certificate.crt'),
+            ca: fs.readFileSync('./ssl/ca_bundle.crt'),
         };
-        var app = (0, express_1.default)();
+        var app = this.express;
         var server = require('https').createServer(options, app);
         this.express = server;
         server.listen(this.port, () => {

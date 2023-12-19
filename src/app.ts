@@ -23,7 +23,6 @@ class App {
         this.initialiseMiddleware();
         this.initialiseControllers(controllers);
         this.initialiseErrorHandling();
-       // this.sslCertificatesConfig();
     }
 
     private initialiseMiddleware(): void {
@@ -61,13 +60,13 @@ class App {
 
 
     public listen(): void {
-      //  this.sslCertificatesConfig(); 
 
       const options = {
-        key: fs.readFileSync('./ssl/private.key', 'utf8'),
-        cert: fs.readFileSync('./ssl/certificate.crt', 'utf8')
-    };
-            var app = express();
+        key: fs.readFileSync('./ssl/private.key'),
+        cert: fs.readFileSync('./ssl/certificate.crt'),
+        ca: fs.readFileSync('./ssl/ca_bundle.crt'),
+        };
+        var app = this.express;
         var server = require('https').createServer(options, app);
 
         this.express = server;
@@ -75,15 +74,6 @@ class App {
             console.log(`App listening on the port ${this.port}`);
         });
     };
-
-    // public listen(): void {
-    //     const httpsPort = 443;
-    //     this.sslCertificatesConfig();
-    
-    //     this.express.listen(httpsPort, () => {
-    //         console.log(`App listening on the HTTPS port ${httpsPort}`);
-    //     });
-    // }
     
 }
 
